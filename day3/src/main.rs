@@ -20,17 +20,11 @@ fn main() {
 
         for x in 0..chars.len() {
             if chars[x].is_numeric() {
-                if current_number.value == 0 {
-                    current_number.value = chars[x].to_digit(10).unwrap(); 
-                } else {
-                    current_number.value = format!("{}{}", current_number.value, chars[x].to_digit(10).unwrap()).parse().unwrap();
-                }
+                current_number.value = format!("{}{}", current_number.value, chars[x].to_digit(10).unwrap()).parse().unwrap();
                 current_number.coordinates.push(Coordinate {x,y});
             } else {
-                if current_number.value > 0 {
-                    numbers.push(current_number.clone());
-                    current_number.value = 0;
-                    current_number.coordinates = Vec::new();
+                if current_number.coordinates.len() > 0 {
+                    add_number_to_vec(&mut current_number, &mut numbers);
                 }
 
                 if chars[x] != '.' {
@@ -41,41 +35,54 @@ fn main() {
                 }
             }
         }
+        if current_number.coordinates.len() > 0 {
+            add_number_to_vec(&mut current_number, &mut numbers);
+        }
     }
 
-
     let mut result = 0;
-    for number in numbers {
+    let mut part_number_count = 0;
+    for number in &numbers {
         println!("");
         println!("Number {}", number.value);
         println!("Coordinates: ");
 
         let mut adjecent_symbol :char = '.';
 
-        for coordinate in number.coordinates {
+        for coordinate in &number.coordinates {
             println!("  x: {}, y: {}", coordinate.x, coordinate.y);
             for symbol in symbols.iter() {
                 if euclidian_distance(&symbol.coordinate, &coordinate) < 2.0 {
                     adjecent_symbol = symbol.value;
-                    break;
                 }
             }
         }
 
         if adjecent_symbol != '.' {
             result += number.value;
+            part_number_count+=1;
             println!("Has adjecent symbol: {}", adjecent_symbol);
             adjecent_symbol = '.';
         }
     }
 
-    println!("The sum of all the numbers is: {}", result);
+    println!("There are {} symbols", symbols.len());
+    println!("There are {} numbers", numbers.len());
+    println!("There are {} part-numbers", part_number_count);
+    println!("The sum of all the part-numbers is: {}", result);
 }
 
 fn euclidian_distance(coord1: &Coordinate, coord2: &Coordinate) -> f64 {
     let x_squared = (coord2.x as f64 - coord1.x as f64).powi(2);
     let y_squared = (coord2.y as f64 - coord1.y as f64).powi(2);
     (x_squared + y_squared).sqrt()
+}
+
+
+fn add_number_to_vec(new_number: &mut Number, number_vec: &mut Vec<Number>) {
+    number_vec.push(new_number.clone());
+    new_number.value = 0;
+    new_number.coordinates = Vec::new();
 }
 
 // A number has a value and a set of coordinates
