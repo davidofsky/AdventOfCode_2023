@@ -7,7 +7,7 @@ fn main() {
     let mut result = 0;
     // each line is 1 game
     for line in puzzle.split("\n") {
-        if line.trim() == "" { return };
+        if line.trim() == "" { continue };
 
         let id :i32 = get_game_id(line);
         let sets = get_game_sets(line);
@@ -31,11 +31,8 @@ fn main() {
             power_of_set = power_of_set * min_cubes;
         }
         result += power_of_set;
-
-
-        println!("result {}", result);
     }
-
+    println!("result {}", result);
 }
 
 fn get_game_sets(line: &str) -> Vec<Vec<(i32, String)>> {
