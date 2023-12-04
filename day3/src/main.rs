@@ -30,6 +30,8 @@ fn main() {
                 if chars[x] != '.' {
                     symbols.push(Symbol {
                         value: chars[x], 
+                        adjecent_numbers: 0,
+                        gear_ratio: 1,
                         coordinate: Coordinate {x,y} 
                     });
                 }
@@ -51,25 +53,43 @@ fn main() {
 
         for coordinate in &number.coordinates {
             println!("  x: {}, y: {}", coordinate.x, coordinate.y);
-            for symbol in symbols.iter() {
+            for symbol in symbols.iter_mut() {
                 if euclidian_distance(&symbol.coordinate, &coordinate) < 2.0 {
                     adjecent_symbol = symbol.value;
+                    symbol.adjecent_numbers += 1;
+                    symbol.gear_ratio = symbol.gear_ratio*number.value;
+                    break;
                 }
             }
-        }
-
-        if adjecent_symbol != '.' {
-            result += number.value;
-            part_number_count+=1;
-            println!("Has adjecent symbol: {}", adjecent_symbol);
-            adjecent_symbol = '.';
+            if adjecent_symbol != '.' {
+                result += number.value;
+                part_number_count+=1;
+                println!("Has adjecent symbol: {}", adjecent_symbol);
+                adjecent_symbol = '.';
+                break;
+            }
         }
     }
 
     println!("There are {} symbols", symbols.len());
     println!("There are {} numbers", numbers.len());
     println!("There are {} part-numbers", part_number_count);
+
+
     println!("The sum of all the part-numbers is: {}", result);
+    println!("");
+
+    // Part 2
+
+    let gears :Vec<&Symbol> = symbols.iter().filter(|&s|s.adjecent_numbers==2).collect();
+    println!("There are {} gears", gears.len());
+
+    let mut gear_ratio_sum = 0;
+    for gear in gears {
+        gear_ratio_sum += gear.gear_ratio;
+    }
+
+    println!("The sum of all the gear ratios is: {}", gear_ratio_sum);
 }
 
 fn euclidian_distance(coord1: &Coordinate, coord2: &Coordinate) -> f64 {
@@ -95,6 +115,8 @@ struct Number {
 
 struct Symbol {
     value: char,
+    adjecent_numbers: u32,
+    gear_ratio: u32,
     coordinate: Coordinate
 }
 
